@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Chess Coach Live – Installation</title>
+<style>
+  :root{--bg:#1e1f22;--card:#2b2d31;--acc:#5fd068;--txt:#e8e8e8;--mut:#9a9ca3}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--txt);font:16px/1.6 -apple-system,Segoe UI,Roboto,Arial,sans-serif}
+  main{max-width:760px;margin:0 auto;padding:32px 20px 60px}
+  h1{font-size:30px;margin:0 0 6px}
+  .sub{color:var(--mut);margin:0 0 28px}
+  .step{background:var(--card);border-radius:14px;padding:18px 20px;margin:14px 0;display:flex;gap:16px}
+  .num{flex:none;width:36px;height:36px;border-radius:50%;background:var(--acc);color:#111;font-weight:800;display:flex;align-items:center;justify-content:center}
+  .step h2{font-size:18px;margin:4px 0 6px}
+  .step p{margin:4px 0}
+  a{color:var(--acc)}
+  .btn{display:inline-block;background:var(--acc);color:#111;text-decoration:none;font-weight:700;padding:10px 18px;border-radius:10px;margin:6px 8px 0 0}
+  .btn.alt{background:#3a3c42;color:var(--txt)}
+  .fair{background:#2a2420;border:1px solid #6b5333;color:#f2d7a6;border-radius:14px;padding:16px 20px;margin:24px 0}
+  ul{margin:6px 0 0 18px;padding:0}
+  .mut{color:var(--mut);font-size:14px}
+  img{max-width:100%;border-radius:12px;border:1px solid #3a3b40;margin-top:10px}
+</style>
+</head>
+<body>
+<main>
+  <h1>♞ Chess Coach Live</h1>
+  <p class="sub">Dein Schach-Coach im Browser: kommentiert jeden Zug auf Chess.com live auf Deutsch – mit Bewertung, Erklärungen und Tipps.</p>
+
+  <div class="step"><div class="num">1</div><div>
+    <h2>Tampermonkey installieren</h2>
+    <p>Installiere die kostenlose Browser-Erweiterung Tampermonkey für deinen Browser:</p>
+    <a class="btn alt" href="https://chromewebstore.google.com/detail/tampermonkey/dhdgffkkebhmkfjojejmpbldmpobfkfo" target="_blank" rel="noopener">Chrome / Brave / Opera</a>
+    <a class="btn alt" href="https://addons.mozilla.org/de/firefox/addon/tampermonkey/" target="_blank" rel="noopener">Firefox</a>
+    <a class="btn alt" href="https://microsoftedge.microsoft.com/addons/detail/tampermonkey/iikmkjmpaadaobahmlepeloendndfphd" target="_blank" rel="noopener">Edge</a>
+    <p class="mut">Chrome/Edge: Unter <b>chrome://extensions</b> bei Tampermonkey auf <b>Details</b> und <b>„Nutzerskripts zulassen“</b> einschalten (bei älteren Versionen oben rechts den <b>Entwicklermodus</b>). Sonst laufen Userscripts nicht.</p>
+  </div></div>
+
+  <div class="step"><div class="num">2</div><div>
+    <h2>Script installieren</h2>
+    <p>Klick auf den Button. Tampermonkey öffnet sich – dort auf <b>Installieren</b> klicken.</p>
+    <a class="btn" href="https://raw.githubusercontent.com/botgrok558-ux/chess-coach/main/chess-coach.user.js">Chess Coach installieren</a>
+  </div></div>
+
+  <div class="step"><div class="num">3</div><div>
+    <h2>Chess.com gegen den Computer öffnen</h2>
+    <p>Öffne <a href="https://www.chess.com/play/computer" target="_blank" rel="noopener">chess.com/play/computer</a> und spiel los. Rechts erscheint das Coach-Fenster.</p>
+    <ul>
+      <li>Fenster an der Kopfzeile verschieben, mit <b>–</b> minimieren</li>
+      <li><b>🔈</b> schaltet die Sprachausgabe ein (deutsche Stimme)</li>
+      <li><b>Tipps</b> blendet den besten Zug und den grünen Pfeil ein oder aus</li>
+    </ul>
+  </div></div>
+
+  <div class="fair">
+    <b>Fair Play – fest eingebaut</b><br>
+    Tipps, Pfeile und Bewertung gibt es nur gegen den Computer, in der Analyse, bei Puzzles, Lektionen und im Training.
+    In Partien gegen echte Menschen zeigt der Coach nur: <i>„Live gegen Menschen: Tipps aus (Fair Play). Analyse nach der Partie verfügbar.“</i>
+    Nach dem Spielende bekommst du die komplette Analyse deiner Partie. So bleibt dein Account sicher.
+  </div>
+
+  <h2 style="font-size:18px">So sieht es aus</h2>
+  <img src="test/screenshot-computer.png" alt="Coach-Fenster gegen den Computer">
+  <img src="test/screenshot-review.png" alt="Analyse nach der Partie">
+  <p class="mut">Ausprobieren ohne Chess.com: <a href="test/board.html">Testbrett</a> · Code: <a href="https://github.com/botgrok558-ux/chess-coach">GitHub</a><br>
+  Funktioniert im Desktop-Browser, nicht in der Chess.com-App. Engine: Stockfish (läuft lokal in deinem Browser).</p>
+</main>
+</body>
+</html>

@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<title>Chess Coach – Testbrett (ahmt chess.com nach)</title>
+<style>
+  body{background:#302e2b;color:#eee;font-family:Arial,sans-serif;margin:20px}
+  .wrap{display:flex;gap:20px;align-items:flex-start}
+  wc-chess-board{display:block;position:relative;width:480px;height:480px;
+    background:conic-gradient(#b58863 90deg,#f0d9b5 90deg 180deg,#b58863 180deg 270deg,#f0d9b5 270deg) 0 0/120px 120px}
+  .piece,.highlight{position:absolute;width:12.5%;height:12.5%;display:flex;align-items:center;justify-content:center;font-size:44px;cursor:pointer}
+  .highlight{background:rgba(255,255,0,.35);pointer-events:none}
+  .piece.sel{outline:3px solid #5fd068}
+  .w{color:#fff;text-shadow:0 0 3px #000}.b{color:#111;text-shadow:0 0 2px #fff}
+  wc-simple-move-list{display:block;width:200px;background:#262421;padding:8px;min-height:200px}
+  .node{display:inline-block;margin:2px 6px}
+  .controls{margin:12px 0;display:flex;gap:6px;flex-wrap:wrap}
+  button,input,select{padding:6px 10px}
+  .game-over-modal-content{position:absolute;inset:35% 15%;background:#222;border:2px solid #888;display:flex;align-items:center;justify-content:center;font-size:20px}
+</style>
+</head>
+<body>
+<h2>Chess Coach – Testbrett</h2>
+<p>Dieses Brett baut das HTML von chess.com nach (<code>wc-chess-board</code>, <code>.piece wp square-52</code>, Zugliste). So lässt sich das Script ohne chess.com testen. Klick eine Figur, dann das Zielfeld.</p>
+<div class="controls">
+  <label>Simulierte Seite:
+    <select id="url">
+      <option value="https://www.chess.com/play/computer">/play/computer (Tipps an)</option>
+      <option value="https://www.chess.com/analysis">/analysis (Tipps an)</option>
+      <option value="https://www.chess.com/game/live/123456">/game/live (gegen Menschen)</option>
+      <option value="https://www.chess.com/play/online">/play/online (gegen Menschen)</option>
+    </select></label>
+  <input id="san" placeholder="Zug, z.B. e4 oder Nf3" size="14">
+  <button id="go">Ziehen</button>
+  <button id="undo">Zurück</button>
+  <button id="flip">Brett drehen</button>
+  <button id="over">Partie beenden (Game-Over-Fenster)</button>
+  <button id="reset">Neu</button>
+</div>
+<div class="wrap">
+  <div id="boardwrap"><wc-chess-board class="board" id="board"></wc-chess-board></div>
+  <wc-simple-move-list id="moves"></wc-simple-move-list>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/chess.js@0.10.3/chess.js"></script>
+<script>
+  var GLYPH = { p: '♟', n: '♞', b: '♝', r: '♜', q: '♛', k: '♚' };
+  var game = new Chess(), lastMove = null, sel = null;
+  var boardEl = document.getElementById('board'), movesEl = document.getElementById('moves');
+  window.__COACH_TEST_URL__ = document.getElementById('url').value;
+  function sqXY(sq) { return ['abcdefgh'.indexOf(sq[0]) + 1, +sq[1]]; }
+  function pos(el, sq) {
+    var xy = sqXY(sq), flipped = boardEl.classList.contains('flipped');
+    var x = flipped ? 8 - xy[0] : xy[0] - 1, y = flipped ? xy[1] - 1 : 8 - xy[1];
+    el.style.left = (x * 12.5) + '%'; el.style.top = (y * 12.5) + '%';
+  }
+  function draw() {
+    boardEl.innerHTML = '';
+    if (lastMove) [lastMove.from, lastMove.to].forEach(function (sq) {
+      var h = document.createElement('div'); var xy = sqXY(sq);
+      h.className = 'highlight square-' + xy[0] + xy[1]; pos(h, sq); boardEl.appendChild(h);
+    });
+    game.board().forEach(function (row, i) { row.forEach(function (p, f) {
+      if (!p) return; var sq = 'abcdefgh'[f] + (8 - i), xy = sqXY(sq);
+      var d = document.createElement('div');
+      d.className = 'piece ' + p.color + p.type + ' square-' + xy[0] + xy[1] + ' ' + p.color + (sel === sq ? ' sel' : '');
+      d.textContent = GLYPH[p.type]; d.dataset.sq = sq; pos(d, sq); boardEl.appendChild(d);
+    }); });
+    movesEl.innerHTML = game.history().map(function (san, i) {
+      var fig = san.match(/^[KQRBN]/);
+      var inner = fig ? '<span class="icon-font-chess" data-figurine="' + fig[0] + '"></span>' + san.slice(1) : san;
+      return '<div class="node ' + (i % 2 ? 'black-move' : 'white-move') + ' main-line-ply"><span class="node-highlight-content">' + inner + '</span></div>';
+    }).join('');
+  }
+  window.play = function (san) { var m = game.move(san, { sloppy: true }); if (m) { lastMove = m; sel = null; draw(); } return !!m; };
+  window.setUrl = function (u) { window.__COACH_TEST_URL__ = u; document.getElementById('url').value = u; };
+  window.showGameOver = function () { var d = document.createElement('div'); d.className = 'game-over-modal-content'; d.textContent = 'Partie beendet – 1-0'; document.getElementById('boardwrap').style.position = 'relative'; document.getElementById('boardwrap').appendChild(d); };
+  window.resetGame = function () { game = new Chess(); lastMove = null; var m = document.querySelector('.game-over-modal-content'); if (m) m.remove(); draw(); };
+  boardEl.addEventListener('click', function (e) {
+    var r = boardEl.getBoundingClientRect(), flipped = boardEl.classList.contains('flipped');
+    var x = Math.floor((e.clientX - r.left) / (r.width / 8)), y = Math.floor((e.clientY - r.top) / (r.height / 8));
+    var sq = flipped ? 'abcdefgh'[7 - x] + (y + 1) : 'abcdefgh'[x] + (8 - y);
+    if (sel) { var m = game.move({ from: sel, to: sq, promotion: 'q' }); if (m) { lastMove = m; sel = null; draw(); return; } }
+    var p = game.get(sq); sel = p && p.color === game.turn() ? sq : null; draw();
+  });
+  document.getElementById('url').onchange = function (e) { window.__COACH_TEST_URL__ = e.target.value; };
+  document.getElementById('go').onclick = function () { var i = document.getElementById('san'); if (play(i.value.trim())) i.value = ''; };
+  document.getElementById('undo').onclick = function () { game.undo(); lastMove = null; draw(); };
+  document.getElementById('flip').onclick = function () { boardEl.classList.toggle('flipped'); draw(); };
+  document.getElementById('over').onclick = showGameOver;
+  document.getElementById('reset').onclick = resetGame;
+  draw();
+</script>
+<script src="../chess-coach.user.js"></script>
+</body>
+</html>
